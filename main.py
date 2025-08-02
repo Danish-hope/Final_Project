@@ -9,7 +9,7 @@ def get_prediction(img, Model):
   class_names = [
     'Chickenpox', 'Healthy', 'Measles', 'Monkeypox'
   ]
-  img = tf.keras.utils.load_img(img, target_size=(640, 640))
+  img = tf.keras.utils.load_img(img, target_size=(180, 180))
   img_array = tf.keras.utils.img_to_array(img)
   img_array = tf.expand_dims(img_array, 0)
 
@@ -45,11 +45,23 @@ st.subheader('Skin Lesion detection')
 
 # Caching the model for faster loading
 @st.cache_data()
-
-# laod the model
 def load_model(model_path):
-  model = tf.keras.models.load_model(model_path)
-  return model
+  try:
+    # Try to load the new inception model first
+    model = tf.keras.models.load_model('inception_model.keras')
+    st.success("Successfully loaded inception_model.keras")
+    return model
+  except Exception as e:
+    st.warning(f"Could not load inception_model.keras: {e}")
+    st.info("Falling back to original SkinNet-23M.h5 model")
+    try:
+      model = tf.keras.models.load_model('inception_model.keras')
+      return model
+    except Exception as e2:
+      st.error(f"Could not load any model: {e2}")
+      return None
+
+# Load the model with fallback option
 model = load_model('inception_model.keras')
 
 API_KEY = "SHDGjYLOl8W5j2qZb4v5UQlajjzb5ej85dtRkwP4"
@@ -64,17 +76,21 @@ case = ""
 case_paragraph = 'Upload an image for the region of lesion'
 
 if image is not None:
-  try:
-    case = get_prediction(image, model)
-    case_paragraph = 'the case in this image is {} with {:.2f}% confidence.'.format(case[0], case[1])
-    st.image(image, caption='skin lesion image', width=200)
-    st.subheader(case_paragraph)
-    info = get_response('what is {}'.format(case[0]))
-    st.write(info)
-  except Exception as e:
-    print(e)
-  finally:
-    print('image has been uploadded successfully')
+  if model is None:
+    st.error("No model loaded. Please check the model files.")
+  else:
+    try:
+      case = get_prediction(image, model)
+      case_paragraph = 'the case in this image is {} with {:.2f}% confidence.'.format(case[0], case[1])
+      st.image(image, caption='skin lesion image', width=200)
+      st.subheader(case_paragraph)
+      info = get_response('what is {}'.format(case[0]))
+      st.write(info)
+    except Exception as e:
+      st.error(f"Error during prediction: {e}")
+      print(e)
+    finally:
+      print('image has been uploadded successfully')
 
 prompt_input = st.chat_input('Ask The AI specialist')
   
