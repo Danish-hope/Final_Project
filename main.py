@@ -3,6 +3,9 @@ import numpy as np
 import streamlit as st
 import cohere
 
+# Display TensorFlow version for debugging
+st.sidebar.write(f"TensorFlow version: {tf.__version__}")
+
 
 # define skin lesions detection function through the CNN model
 def get_prediction(img, Model):
@@ -55,7 +58,7 @@ def load_model(model_path):
     st.warning(f"Could not load inception_model.keras: {e}")
     st.info("Falling back to original SkinNet-23M.h5 model")
     try:
-      model = tf.keras.models.load_model('inception_model.keras')
+      model = tf.keras.models.load_model('SkinNet-23M.h5')
       return model
     except Exception as e2:
       st.error(f"Could not load any model: {e2}")
