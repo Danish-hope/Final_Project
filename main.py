@@ -7,9 +7,9 @@ import cohere
 # define skin lesions detection function through the CNN model
 def get_prediction(img, Model):
   class_names = [
-    'Chickenpox', 'Cowpox', 'HFMD', 'Healthy', 'Measles', 'Monkeypox'
+    'Chickenpox', 'Healthy', 'Measles', 'Monkeypox'
   ]
-  img = tf.keras.utils.load_img(img, target_size=(180, 180))
+  img = tf.keras.utils.load_img(img, target_size=(640, 640))
   img_array = tf.keras.utils.img_to_array(img)
   img_array = tf.expand_dims(img_array, 0)
 
@@ -50,7 +50,7 @@ st.subheader('Skin Lesion detection')
 def load_model(model_path):
   model = tf.keras.models.load_model(model_path)
   return model
-model = load_model('SkinNet-23M.h5')
+model = load_model('inception_model.keras')
 
 API_KEY = "SHDGjYLOl8W5j2qZb4v5UQlajjzb5ej85dtRkwP4"
 
